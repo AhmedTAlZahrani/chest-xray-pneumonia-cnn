@@ -68,9 +68,23 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
+    # Validate data directories exist
+    train_dir = Path(args.data_dir) / "train"
+    val_dir = Path(args.data_dir) / "val"
+    if not train_dir.exists():
+        raise FileNotFoundError(
+            f"Training directory not found: {train_dir}. "
+            f"Download the dataset and place it under '{args.data_dir}/'."
+        )
+    if not val_dir.exists():
+        raise FileNotFoundError(
+            f"Validation directory not found: {val_dir}. "
+            f"Download the dataset and place it under '{args.data_dir}/'."
+        )
+
     # Datasets and loaders
-    train_ds = ChestXRayDataset(Path(args.data_dir) / "train", split="train")
-    val_ds = ChestXRayDataset(Path(args.data_dir) / "val", split="val")
+    train_ds = ChestXRayDataset(train_dir, split="train")
+    val_ds = ChestXRayDataset(val_dir, split="val")
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=2)
     print(f"Train: {len(train_ds)} images | Val: {len(val_ds)} images")
